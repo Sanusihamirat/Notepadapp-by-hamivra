@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sanusi Hamirat - Full Stack Web Developer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --color-black: #0a0a0a;
+        --color-dark: #111;
+        --color-gray: #1c1c1c;
+        --color-white: #ffffff;
+        --color-offwhite: #f5f5f5;
+        --color-accent: #ff6a00;
+        --color-text: #d1d1d1;
+    }
+    
+    * {
+        scroll-behavior: smooth;
+    }
+    
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--color-black);
+        color: var(--color-text);
+        overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5 {
+        font-family: 'Sora', sans-serif;
+    }
+    
+    .text-accent {
+        color: var(--color-accent);
+    }
+    
+    .bg-accent {
+        background-color: var(--color-accent);
+    }
+    
+    .border-accent {
+        border-color: var(--color-accent);
+    }
+    
+    .nav-link {
+        position: relative;
+    }
+    
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: -4px;
+        left: 0;
+        background-color: var(--color-accent);
+        transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after, .nav-link.active::after {
+        width: 100%;
+    }
+    
+    .btn-primary {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+    
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+        z-index: -1;
+    }
+    
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+    
+    .section-reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    
+    .section-reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    .skill-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .project-card {
+        transition: all 0.4s ease;
+    }
+    
+    .project-card:hover {
+        transform: translateY(-8px);
+    }
+    
+    .project-overlay {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .project-card:hover .project-overlay {
+        opacity: 1;
+    }
+    
+    .testimonial-card {
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-menu {
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    .mobile-menu.open {
+        transform: translateX(0);
+    }
+    
+    .stat-num {
+        background: linear-gradient(135deg, #fff 30%, #ff6a00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    @media (max-width: 390px) {
+        .hero-title {
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+        }
+    }
+</style>
+</head>
+<body class="bg-[#0a0a0a] text-gray-300">
+    <!-- Navigation -->
+    <header id="header" class="fixed w-full top-0 z-50 transition-all duration-300 bg-[#0a0a0a]/80 backdrop-blur-lg border-b border-gray-800">
+        <nav class="container mx-auto px-6 lg:px-12 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#home" class="text-2xl font-bold text-white">
+                    SH<span class="text-accent">.</span>
+                </a>
+                
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="nav-link text-sm font-medium text-white hover:text-accent transition">Home</a>
+                    <a href="#about" class="nav-link text-sm font-medium hover:text-accent transition">About</a>
+                    <a href="#expertise" class="nav-link text-sm font-medium hover:text-accent transition">Expertise</a>
+                    <a href="#services" class="nav-link text-sm font-medium hover:text-accent transition">Services</a>
+                    <a href="#projects" class="nav-link text-sm font-medium hover:text-accent transition">Projects</a>
+                    <a href="#contact" class="nav-link text-sm font-medium hover:text-accent transition">Contact</a>
+                </div>
+                
+                <div class="hidden md:block">
+                    <a href="#contact" class="btn-primary bg-white text-black px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-accent hover:text-white transition-all">
+                        Let's Talk
+                    </a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white text-2xl focus:outline-none" aria-label="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+    
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 h-full w-4/5 max-w-sm bg-[#111111] z-[60] shadow-2xl md:hidden">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-10">
+                <span class="text-xl font-bold text-white">Menu</span>
+                <button id="close-menu-btn" class="text-2xl text-gray-400 hover:text-accent" aria-label="Close menu">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="flex flex-col space-y-6">
+                <a href="#home" class="mobile-nav-link text-lg font-medium text-white hover:text-accent transition">Home</a>
+                <a href="#about" class="mobile-nav-link text-lg font-medium hover:text-accent transition">About</a>
+                <a href="#expertise" class="mobile-nav-link text-lg font-medium hover:text-accent transition">Expertise</a>
+                <a href="#services" class="mobile-nav-link text-lg font-medium hover:text-accent transition">Services</a>
+                <a href="#projects" class="mobile-nav-link text-lg font-medium hover:text-accent transition">Projects</a>
+                <a href="#contact" class="mobile-nav-link text-lg font-medium hover:text-accent transition">Contact</a>
+                <a href="#contact" class="btn-primary bg-white text-black px-6 py-3 rounded-full text-center font-semibold mt-4">
+                    Let's Talk
+                </a>
+            </div>
+        </div>
+    </div>
+    <div id="menu-overlay" class="fixed inset-0 bg-black/60 z-[55] hidden md:hidden"></div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="min-h-screen flex items-center pt-24 pb-16 px-6 lg:px-12">
+            <div class="container mx-auto">
+                <div class="grid lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 section-reveal">
+                        <div class="inline-block mb-6 px-4 py-1.5 rounded-full border border-gray-800 bg-[#111111]">
+                            <span class="text-sm text-gray-400">
+                                <span class="inline-block w-2 h-2 bg-accent rounded-full mr-2 animate-pulse"></span>
+                                Available for new projects
+                            </span>
+                        </div>
+                        <h1 class="hero-title text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+                            Sanusi Hamirat
+                        </h1>
+                        <h2 class="text-2xl md:text-3xl font-semibold text-gray-300 mb-6">
+                            Full Stack Web Developer
+                        </h2>
+                        <p class="text-lg text-gray-400 mb-10 max-w-2xl leading-relaxed">
+                            I build exceptional digital experiences that are fast, accessible, and user-centered. Specializing in full-stack development with a passion for clean code and innovative design solutions.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <a href="#projects" class="btn-primary bg-white text-black px-8 py-3.5 rounded-full font-semibold hover:bg-accent hover:text-white transition-all">
+                                View My Work
+                            </a>
+                            <a href="#contact" class="border border-gray-700 text-white px-8 py-3.5 rounded-full font-semibold hover:border-accent hover:text-accent transition-all">
+                                Get In Touch
+                            </a>
+                        </div>
+                        <div class="flex gap-6 mt-12">
+                            <a href="#" class="text-gray-500 hover:text-accent text-xl transition" aria-label="GitHub">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="#" class="text-gray-500 hover:text-accent text-xl transition" aria-label="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="#" class="text-gray-500 hover:text-accent text-xl transition" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 section-reveal">
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-accent blur-[120px] opacity-10 rounded-full"></div>
+                            <div class="relative bg-[#111111] border border-gray-800 rounded-2xl p-8 md:p-10">
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div class="bg-[#0a0a0a] rounded-xl p-6 border border-gray-800">
+                                        <div class="text-4xl font-bold stat-num mb-2" data-count="50">0</div>
+                                        <div class="text-sm text-gray-500">Projects Completed</div>
+                                    </div>
+                                    <div class="bg-[#0a0a0a] rounded-xl p-6 border border-gray-800">
+                                        <div class="text-4xl font-bold stat-num mb-2" data-count="30">0</div>
+                                        <div class="text-sm text-gray-500">Happy Clients</div>
+                                    </div>
+                                    <div class="bg-[#0a0a0a] rounded-xl p-6 border border-gray-800">
+                                        <div class="text-4xl font-bold stat-num mb-2" data-count="5">0</div>
+                                        <div class="text-sm text-gray-500">Years Experience</div>
+                                    </div>
+                                    <div class="bg-[#0a0a0a] rounded-xl p-6 border border-gray-800">
+                                        <div class="text-4xl font-bold stat-num mb-2">24/7</div>
+                                        <div class="text-sm text-gray-500">Support</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-20 md:py-32 px-6 lg:px-12 bg-[#111111]">
+            <div class="container mx-auto">
+                <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                    <div class="section-reveal">
+                        <span class="text-accent text-sm font-semibold tracking-wider uppercase">About Me</span>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3 mb-6">
+                            Building digital solutions with purpose and precision
+                        </h2>
+                        <div class="space-y-4 text-gray-400 leading-relaxed">
+                            <p>
+                                I am a passionate Full Stack Web Developer with deep understanding of both front-end and back-end technologies. I specialize in creating seamless, intuitive digital experiences that solve real-world problems.
+                            </p>
+                            <p>
+                                With expertise spanning HTML5, CSS3, JavaScript, PHP, and MySQL, I bring ideas to life through clean code and thoughtful design. My approach combines technical excellence with creative problem-solving to deliver websites and applications that not only look great but perform exceptionally.
+                            </p>
+                            <p>
+                                Beyond development, I have a strong foundation in graphic design, allowing me to bridge the gap between design and implementation. I believe in writing maintainable code, optimizing for performance, and creating responsive experiences that work flawlessly across all devices.
+                            </p>
+                        </div>
+                        <div class="mt-8 flex flex-wrap gap-3">
+                            <span class="px-4 py-2 bg-[#0a0a0a] border border-gray-800 rounded-full text-sm">Problem Solver</span>
+                            <span class="px-4 py-2 bg-[#0a0a0a] border border-gray-800 rounded-full text-sm">Detail Oriented</span>
+                            <span class="px-4 py-2 bg-[#0a0a0a] border border-gray-800 rounded-full text-sm">Team Player</span>
+                        </div>
+                    </div>
+                    <div class="section-reveal">
+                        <div class="relative">
+                            <div class="bg-[#0a0a0a] border border-gray-800 rounded-2xl p-8">
+                                <h3 class="text-xl font-semibold text-white mb-6">Core Values</h3>
+                                <div class="space-y-6">
+                                    <div class="flex gap-4">
+                                        <div class="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-code text-accent"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-white mb-1">Clean Code</h4>
+                                            <p class="text-sm text-gray-500">Writing maintainable, scalable, and efficient code is my priority.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-4">
+                                        <div class="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-mobile-alt text-accent"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-white mb-1">User-Centered</h4>
+                                            <p class="text-sm text-gray-500">Every design decision is made with the end-user in mind.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-4">
+                                        <div class="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-rocket text-accent"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-white mb-1">Performance</h4>
+                                            <p class="text-sm text-gray-500">Optimized solutions that load fast and run smoothly.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Technical Expertise -->
+        <section id="expertise" class="py-20 md:py-32 px-6 lg:px-12">
+            <div class="container mx-auto">
+                <div class="text-center max-w-3xl mx-auto mb-16 section-reveal">
+                    <span class="text-accent text-sm font-semibold tracking-wider uppercase">Technical Expertise</span>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3 mb-4">
+                        Technologies I work with
+                    </h2>
+                    <p class="text-gray-400">
+                        A comprehensive skill set covering the full development stack from concept to deployment.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="skill-card bg-[#111111] border border-gray-800 rounded-xl p-8 transition section-reveal">
+                        <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fab fa-html5 text-2xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">HTML5 & Semantics</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Crafting semantic, accessible markup that provides solid foundation for every web project.
+                        </p>
+                    </div>
+                    <div class="skill-card bg-[#111111] border border-gray-800 rounded-xl p-8 transition section-reveal">
+                        <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fab fa-css3-alt text-2xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">CSS3</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Modern styling with Flexbox, Grid, animations, and preprocessors for pixel-perfect designs.
+                        </p>
+                    </div>
+                    <div class="skill-card bg-[#111111] border border-gray-800 rounded-xl p-8 transition section-reveal">
+                        <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fab fa-js text-2xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">JavaScript</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Interactive functionality, DOM manipulation, and modern ES6+ features for dynamic experiences.
+                        </p>
+                    </div>
+                    <div class="skill-card bg-[#111111] border border-gray-800 rounded-xl p-8 transition section-reveal">
+                        <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fab fa-php text-2xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">PHP & MySQL</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Server-side development and database management for robust, data-driven applications.
+                        </p>
+                    </div>
+                    <div class="skill-card bg-[#111111] border border-gray-800 rounded-xl p-8 transition section-reveal">
+                        <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-mobile-alt text-2xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Responsive Design</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Mobile-first approach ensuring seamless experiences across all devices and screen sizes.
+                        </p>
+                    </div>
+                    <div class="skill-card bg-[#111111] border border-gray-800 rounded-xl p-8 transition section-reveal">
+                        <div class="w-14 h-14 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-bug text-2xl text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Debugging & Troubleshooting</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Systematic problem-solving to identify and resolve issues, optimizing code performance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services -->
+        <section id="services" class="py-20 md:py-32 px-6 lg:px-12 bg-[#111111]">
+            <div class="container mx-auto">
+                <div class="text-center max-w-3xl mx-auto mb-16 section-reveal">
+                    <span class="text-accent text-sm font-semibold tracking-wider uppercase">Services</span>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3 mb-4">
+                        What I can do for you
+                    </h2>
+                    <p class="text-gray-400">
+                        End-to-end solutions to bring your digital vision to life.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 hover:border-accent/50 transition section-reveal">
+                        <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-layer-group text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Full Stack Development</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Complete web applications from database design to user interface, handling both front-end and back-end development.
+                        </p>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 hover:border-accent/50 transition section-reveal">
+                        <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-desktop text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Responsive Web Design</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Beautiful, functional websites that adapt perfectly to any device, ensuring optimal user experience everywhere.
+                        </p>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 hover:border-accent/50 transition section-reveal">
+                        <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-palette text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Graphic Design</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Creative visual designs for branding, UI elements, and digital assets that communicate your message effectively.
+                        </p>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 hover:border-accent/50 transition section-reveal">
+                        <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-lightbulb text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Creative Digital Solutions</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Innovative approaches to complex problems, delivering custom solutions tailored to your specific needs.
+                        </p>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 hover:border-accent/50 transition section-reveal">
+                        <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-wrench text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Website Maintenance</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Ongoing support, updates, and optimization to keep your website secure, fast, and current.
+                        </p>
+                    </div>
+                    <div class="bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 hover:border-accent/50 transition section-reveal">
+                        <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-5">
+                            <i class="fas fa-search text-accent"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-3">Debugging & Troubleshooting</h3>
+                        <p class="text-gray-500 text-sm leading-relaxed">
+                            Identifying and fixing technical issues, improving performance, and ensuring your applications run smoothly.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section id="projects" class="py-20 md:py-32 px-6 lg:px-12">
+            <div class="container mx-auto">
+                <div class="text-center max-w-3xl mx-auto mb-16 section-reveal">
+                    <span class="text-accent text-sm font-semibold tracking-wider uppercase">Portfolio</span>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3 mb-4">
+                        Featured Projects
+                    </h2>
+                    <p class="text-gray-400">
+                        A selection of recent work showcasing my capabilities across different domains.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="project-card bg-[#111111] border border-gray-800 rounded-xl overflow-hidden section-reveal">
+                        <div class="relative h-56 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-5xl text-gray-700"></i>
+                            <div class="project-overlay absolute inset-0 bg-black/80 flex items-center justify-center">
+                                <a href="#" class="bg-accent text-white px-6 py-2.5 rounded-full font-semibold text-sm">View Project</a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Modern E-commerce</h3>
+                            <p class="text-gray-500 text-sm mb-4">Full-featured online shopping platform with cart and payment integration.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">HTML</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">CSS</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">JavaScript</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card bg-[#111111] border border-gray-800 rounded-xl overflow-hidden section-reveal">
+                        <div class="relative h-56 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                            <i class="fas fa-dumbbell text-5xl text-gray-700"></i>
+                            <div class="project-overlay absolute inset-0 bg-black/80 flex items-center justify-center">
+                                <a href="#" class="bg-accent text-white px-6 py-2.5 rounded-full font-semibold text-sm">View Project</a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Fitness App</h3>
+                            <p class="text-gray-500 text-sm mb-4">Workout tracking application with user profiles and progress analytics.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">PHP</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">MySQL</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">HTML</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card bg-[#111111] border border-gray-800 rounded-xl overflow-hidden section-reveal">
+                        <div class="relative h-56 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                            <i class="fas fa-store text-5xl text-gray-700"></i>
+                            <div class="project-overlay absolute inset-0 bg-black/80 flex items-center justify-center">
+                                <a href="#" class="bg-accent text-white px-6 py-2.5 rounded-full font-semibold text-sm">View Project</a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Online Store</h3>
+                            <p class="text-gray-500 text-sm mb-4">Database-driven retail platform with inventory management system.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">MySQL</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">HTML</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">PHP</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card bg-[#111111] border border-gray-800 rounded-xl overflow-hidden section-reveal">
+                        <div class="relative h-56 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                            <i class="fas fa-briefcase text-5xl text-gray-700"></i>
+                            <div class="project-overlay absolute inset-0 bg-black/80 flex items-center justify-center">
+                                <a href="#" class="bg-accent text-white px-6 py-2.5 rounded-full font-semibold text-sm">View Project</a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Portfolio Website</h3>
+                            <p class="text-gray-500 text-sm mb-4">Personal portfolio showcasing projects and professional experience.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">HTML</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">CSS</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">JavaScript</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card bg-[#111111] border border-gray-800 rounded-xl overflow-hidden section-reveal">
+                        <div class="relative h-56 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                            <i class="fas fa-plane text-5xl text-gray-700"></i>
+                            <div class="project-overlay absolute inset-0 bg-black/80 flex items-center justify-center">
+                                <a href="#" class="bg-accent text-white px-6 py-2.5 rounded-full font-semibold text-sm">View Project</a>
+                            </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Travel App</h3>
+                            <p class="text-gray-500 text-sm mb-4">Destination booking and itinerary planning platform for travelers.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">HTML</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">PHP</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">JavaScript</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="project-card bg-[#111111] border border-gray-800 rounded-xl overflow-hidden section-reveal">
+                        <div class="relative h-56 bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+                            <i class="fas fa-utensils text-5xl text-gray-700"></i>
+                            <div class="project-overlay absolute inset-0 bg-black/80 flex items-center justify-center">
+                                <a href="#" class="bg-accent text-white px-6 py-2.5 rounded-full font-semibold text-sm">View Project</a>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-white mb-2">Food Delivery</h3>
+                            <p class="text-gray-500 text-sm mb-4">Restaurant ordering system with real-time tracking and payments.</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">PHP</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">MySQL</span>
+                                <span class="px-3 py-1 bg-[#0a0a0a] border border-gray-800 rounded-full text-xs text-gray-400">JavaScript</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="py-20 md:py-32 px-6 lg:px-12 bg-[#111111]">
+            <div class="container mx-auto">
+                <div class="text-center max-w-3xl mx-auto mb-16 section-reveal">
+                    <span class="text-accent text-sm font-semibold tracking-wider uppercase">Testimonials</span>
+                    <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3 mb-4">
+                        What clients say
+                    </h2>
+                    <p class="text-gray-400">
+                        Feedback from people I've had the pleasure to work with.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="testimonial-card bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 section-reveal">
+                        <div class="flex gap-1 text-accent mb-4">
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                        </div>
+                        <p class="text-gray-400 mb-6 leading-relaxed">
+                            "Sanusi delivered exceptional work on our e-commerce platform. Her attention to detail and technical expertise made the entire process smooth and successful."
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
+                                <span class="text-accent font-semibold">MO</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">Mubashir Olanrewaju</div>
+                                <div class="text-sm text-gray-500">CEO, Tech Solutions</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 section-reveal">
+                        <div class="flex gap-1 text-accent mb-4">
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                        </div>
+                        <p class="text-gray-400 mb-6 leading-relaxed">
+                            "Working with Sanusi was a great experience. She understood our requirements perfectly and delivered a website that exceeded our expectations."
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
+                                <span class="text-accent font-semibold">JA</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">Jubril Ariel</div>
+                                <div class="text-sm text-gray-500">Founder, Creative Studio</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-card bg-[#0a0a0a] border border-gray-800 rounded-xl p-8 section-reveal">
+                        <div class="flex gap-1 text-accent mb-4">
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                            <i class="fas fa-star text-sm"></i>
+                        </div>
+                        <p class="text-gray-400 mb-6 leading-relaxed">
+                            "Professional, reliable, and skilled. Sanusi transformed our outdated website into a modern, responsive platform that our customers love."
+                        </p>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
+                                <span class="text-accent font-semibold">JW</span>
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white">Joe Walker</div>
+                                <div class="text-sm text-gray-500">Director, Digital Agency</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <section id="contact" class="py-20 md:py-32 px-6 lg:px-12">
+            <div class="container mx-auto">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-16 section-reveal">
+                        <span class="text-accent text-sm font-semibold tracking-wider uppercase">Contact</span>
+                        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mt-3 mb-4">
+                            Let's work together
+                        </h2>
+                        <p class="text-gray-400">
+                            Have a project in mind? I'd love to hear about it.
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-12 section-reveal">
+                        <div>
+                            <h3 class="text-xl font-semibold text-white mb-6">Get in touch</h3>
+                            <div class="space-y-6">
+                                <div class="flex gap-4">
+                                    <div class="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-envelope text-accent"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500 mb-1">Email</div>
+                                        <a href="mailto:hello@sanusihamirat.com" class="text-white hover:text-accent transition">hello@sanusihamirat.com</a>
+                                    </div>
+                                </div>
+                                <div class="flex gap-4">
+                                    <div class="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-phone text-accent"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500 mb-1">Phone</div>
+                                        <a href="tel:+1234567890" class="text-white hover:text-accent transition">+1 (234) 567-890</a>
+                                    </div>
+                                <div class="flex gap-4">
+                                    <div class="flex-shrink-0 w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-map-marker-alt text-accent"></i>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-500 mb-1">Location</div>
+                                        <div class="text-white">Available Worldwide</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 mt-8">
+                                <a href="#" class="w-10 h-10 bg-[#111111] border border-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-accent hover:border-accent transition" aria-label="GitHub">
+                                    <i class="fab fa-github"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-[#111111] border border-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-accent hover:border-accent transition" aria-label="LinkedIn">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </a>
+                                <a href="#" class="w-10 h-10 bg-[#111111] border border-gray-800 rounded-lg flex items-center justify-center text-gray-400 hover:text-accent hover:border-accent transition" aria-label="Twitter">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                            </div>
+                        <div>
+                            <form id="contact-form" class="space-y-4">
+                                <div>
+                                    <input type="text" placeholder="Your Name" required class="w-full bg-[#111111] border border-gray-800 rounded-lg px-4 py-3.5 text-white placeholder-gray-600 focus:border-accent focus:outline-none transition">
+                                </div>
+                                <div>
+                                    <input type="email" placeholder="Your Email" required class="w-full bg-[#111111] border border-gray-800 rounded-lg px-4 py-3.5 text-white placeholder-gray-600 focus:border-accent focus:outline-none transition">
+                                </div>
+                                <div>
+                                    <input type="text" placeholder="Subject" class="w-full bg-[#111111] border border-gray-800 rounded-lg px-4 py-3.5 text-white placeholder-gray-600 focus:border-accent focus:outline-none transition">
+                                </div>
+                                <div>
+                                    <textarea placeholder="Your Message" rows="5" required class="w-full bg-[#111111] border border-gray-800 rounded-lg px-4 py-3.5 text-white placeholder-gray-600 focus:border-accent focus:outline-none transition resize-none"></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary w-full bg-white text-black px-8 py-3.5 rounded-lg font-semibold hover:bg-accent hover:text-white transition-all">
+                                    Send Message
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#111111] border-t border-gray-800 py-8 px-6 lg:px-12">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-gray-500 text-sm">
+                    © 2024 Sanusi Hamirat. All rights reserved.
+                </div>
+                <div class="flex gap-6 text-sm">
+                    <a href="#" class="text-gray-500 hover:text-accent transition">Privacy</a>
+                    <a href="#" class="text-gray-500 hover:text-accent transition">Terms</a>
+                    <a href="#home" class="text-gray-500 hover:text-accent transition">Back to Top</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const closeMenuBtn = document.getElementById('close-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuOverlay = document.getElementById('menu-overlay');
+        const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+        function openMenu() {
+            mobileMenu.classList.add('open');
+            menuOverlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenu() {
+            mobileMenu.classList.remove('open');
+            menuOverlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        mobileMenuBtn.addEventListener('click', openMenu);
+        closeMenuBtn.addEventListener('click', closeMenu);
+        menuOverlay.addEventListener('click', closeMenu);
+        mobileNavLinks.forEach(link => link.addEventListener('click', closeMenu));
+
+        // Header scroll effect
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('shadow-lg');
+            } else {
+                header.classList.remove('shadow-lg');
+            }
+        });
+
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function setActiveLink() {
+            const scrollY = window.pageYOffset;
+            
+            sections.forEach(section => {
+                const sectionHeight = section.offsetHeight;
+                const sectionTop = section.offsetTop - 100;
+                const sectionId = section.getAttribute('id');
+                
+                if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active', 'text-white');
+                        if (link.getAttribute('href') === `#${sectionId}`) {
+                            link.classList.add('active', 'text-white');
+                        }
+                    });
+                }
+            });
+        }
+
+        window.addEventListener('scroll', setActiveLink);
+
+        // Scroll reveal animation
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section-reveal').forEach(el => observer.observe(el));
+
+        // Animated counter
+        const counters = document.querySelectorAll('[data-count]');
+        const speed = 200;
+
+        const countUp = (counter) => {
+            const target = parseInt(counter.getAttribute('data-count'));
+            const count = parseInt(counter.innerText);
+            const increment = target / speed;
+
+            if (count < target) {
+                counter.innerText = Math.ceil(count + increment);
+                setTimeout(() => countUp(counter), 10);
+            } else {
+                counter.innerText = target;
+            }
+        };
+
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    countUp(entry.target);
+                    counterObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => counterObserver.observe(counter));
+
+        // Contact form
+        document.getElementById('contact-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Thank you for your message! I will get back to you soon.');
+            e.target.reset();
+        });
+    </script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+</body>
+</html>
