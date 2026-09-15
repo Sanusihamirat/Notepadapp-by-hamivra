@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notepad Demo - localStorage</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'sans-serif'],
+        },
+        animation: {
+          'fade-in': 'fadeIn 0.3s ease-out',
+          'slide-up': 'slideUp 0.3s ease-out',
+        },
+        keyframes: {
+          fadeIn: {
+            '0%': { opacity: '0' },
+            '100%': { opacity: '1' },
+          },
+          slideUp: {
+            '0%': { transform: 'translateY(10px)', opacity: '0' },
+            '100%': { transform: 'translateY(0)', opacity: '1' },
+          }
+        }
+      }
+    }
+  }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  * {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .glass {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+  
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+  
+  .note-item:hover .delete-btn {
+    opacity: 1;
+  }
+  
+  textarea {
+    resize: none;
+  }
+  
+  .skeleton {
+    background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  .dark .skeleton {
+    background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+    background-size: 200% 100%;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+</style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+  <!-- Demo Banner -->
+  <div class="bg-amber-500 text-white text-center py-2 px-4 text-sm font-medium">
+    <i class="fa-solid fa-flask mr-2"></i>DEMO MODE - Using localStorage. Connect Firebase later for real accounts
+  </div>
+
+  <!-- Main Container -->
+  <div id="app" class="min-h-screen">
+    <!-- Auth View -->
+    <div id="authView" class="min-h-[calc(100vh-40px)] flex items-center justify-center p-4">
+      <div class="w-full max-w-md">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 animate-fade-in border border-slate-200 dark:border-slate-700">
+          <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl mb-4 shadow-lg">
+              <i class="fa-solid fa-note-sticky text-white text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Notepad Demo</h1>
+            <p class="text-slate-600 dark:text-slate-400 text-sm" id="authSubtitle">Sign in to access your notes</p>
+          </div>
+
+          <form id="authForm" class="space-y-5">
+            <div>
+              <label for="email" class="block text-sm font-medium mb-2">Email</label>
+              <div class="relative">
+                <i class="fa-solid fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input 
+                  type="email" 
+                  id="email" 
+                  class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  placeholder="you@example.com"
+                  required
+                >
+              </div>
+            </div>
+
+            <div>
+              <label for="password" class="block text-sm font-medium mb-2">Password</label>
+              <div class="relative">
+                <i class="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input 
+                  type="password" 
+                  id="password" 
+                  class="w-full pl-10 pr-10 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all"
+                  placeholder="••••••••"
+                  required
+                  minlength="6"
+                >
+                <button type="button" id="togglePassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </div>
+
+            <div id="errorMsg" class="hidden bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 text-sm p-3 rounded-lg border border-red-200 dark:border-red-800">
+              <i class="fa-solid fa-circle-exclamation mr-2"></i>
+              <span id="errorText"></span>
+            </div>
+
+            <button 
+              type="submit" 
+              id="authSubmitBtn"
+              class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5"
+            >
+              Sign In
+            </button>
+          </form>
+
+          <div class="mt-6 text-center">
+            <button id="toggleAuthBtn" class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
+              Don't have an account? Sign up
+            </button>
+          </div>
+        </div>
+
+        <button id="themeToggleAuth" class="mt-6 mx-auto flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 text-sm font-medium transition-colors">
+          <i class="fa-solid fa-moon" id="themeIconAuth"></i>
+          <span id="themeTextAuth">Dark Mode</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="hidden min-h-[calc(100vh-40px)]">
+      <!-- Header -->
+      <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow">
+                <i class="fa-solid fa-note-sticky text-white"></i>
+              </div>
+              <div>
+                <h1 class="text-xl font-bold">My Notes</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400" id="userEmail"></p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button id="themeToggleDash" class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+                <i class="fa-solid fa-moon text-lg" id="themeIconDash"></i>
+              </button>
+              <button id="logoutBtn" class="px-4 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 font-medium text-sm transition-colors">
+                <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)]">
+          <!-- Notes Sidebar -->
+          <div class="lg:w-80 xl:w-96 flex flex-col">
+            <button id="newNoteBtn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5 mb-4">
+              <i class="fa-solid fa-plus mr-2"></i>New Note
+            </button>
+
+            <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex-1 overflow-hidden flex flex-col">
+              <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+                <div class="relative">
+                  <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                  <input 
+                    type="text" 
+                    id="searchNotes" 
+                    placeholder="Search notes..." 
+                    class="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none text-sm"
+                  >
+                </div>
+              </div>
+              
+              <div id="notesList" class="flex-1 overflow-y-auto custom-scrollbar p-2">
+                <!-- Notes will be rendered here -->
+              </div>
+
+              <div id="emptyNotesList" class="hidden flex-1 flex items-center justify-center p-8 text-center">
+                <div>
+                  <i class="fa-solid fa-note-sticky text-4xl text-slate-300 dark:text-slate-600 mb-3"></i>
+                  <p class="text-slate-500 dark:text-slate-400 text-sm">No notes yet</p>
+                  <p class="text-slate-400 dark:text-slate-500 text-xs mt-1">Create your first note to get started</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Editor -->
+          <div class="flex-1 flex flex-col">
+            <div id="noteEditor" class="hidden bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex-1 flex flex-col overflow-hidden animate-slide-up">
+              <div class="p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                  <i class="fa-solid fa-clock"></i>
+                  <span id="lastEdited"></span>
+                  <span id="saveStatus" class="ml-2 text-green-600 dark:text-green-400 hidden">
+                    <i class="fa-solid fa-check"></i> Saved
+                  </span>
+                </div>
+                <button id="deleteNoteBtn" class="px-3 py-1.5 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 text-sm font-medium transition-colors">
+                  <i class="fa-solid fa-trash mr-1"></i>Delete
+                </button>
+              </div>
+              
+              <textarea 
+                id="noteContent" 
+                placeholder="Start typing your note..."
+                class="flex-1 p-6 bg-transparent outline-none custom-scrollbar text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-base leading-relaxed"
+              ></textarea>
+            </div>
+
+            <div id="emptyEditor" class="flex-1 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 border-dashed flex items-center justify-center">
+              <div class="text-center p-8">
+                <i class="fa-solid fa-pen-to-square text-5xl text-slate-300 dark:text-slate-600 mb-4"></i>
+                <h3 class="text-xl font-semibold text-slate-700 dark:text-slate-300 mb-2">Select a note or create a new one</h3>
+                <p class="text-slate-500 dark:text-slate-400 text-sm">Your notes will appear here</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="hidden fixed inset-0 bg-black/50 glass flex items-center justify-center p-4 z-50">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slide-up">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+          <i class="fa-solid fa-trash text-red-600 dark:text-red-400 text-xl"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold">Delete Note</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-400">This action cannot be undone</p>
+        </div>
+      <p class="text-slate-700 dark:text-slate-300 mb-6">Are you sure you want to delete this note?</p>
+      <div class="flex gap-3">
+        <button id="cancelDeleteBtn" class="flex-1 px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium transition-colors">
+          Cancel
+        </button>
+        <button id="confirmDeleteBtn" class="flex-1 px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-medium transition-colors">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+<script>
+class LocalStorageAuth {
+  constructor() {
+    this.USERS_KEY = 'notepad_demo_users';
+    this.CURRENT_USER_KEY = 'notepad_demo_current_user';
+    this.NOTES_PREFIX = 'notepad_demo_notes_';
+  }
+
+  hashPassword(password) {
+    // Simple demo hash - DO NOT use in production
+    let hash = 0;
+    for (let i = 0; i < password.length; i++) {
+      const char = password.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+    return hash.toString(36);
+  }
+
+  getUsers() {
+    return JSON.parse(localStorage.getItem(this.USERS_KEY) || '{}');
+  }
+
+  saveUsers(users) {
+    localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
+  }
+
+  register(email, password) {
+    const users = this.getUsers();
+    if (users[email]) {
+      throw new Error('User already exists');
+    }
+    if (password.length < 6) {
+      throw new Error('Password must be at least 6 characters');
+    }
+    users[email] = {
+      email,
+      password: this.hashPassword(password),
+      createdAt: Date.now()
+    };
+    this.saveUsers(users);
+    this.setCurrentUser(email);
+    return { email };
+  }
+
+  login(email, password) {
+    const users = this.getUsers();
+    if (!users[email]) {
+      throw new Error('Invalid email or password');
+    }
+    if (users[email].password !== this.hashPassword(password)) {
+      throw new Error('Invalid email or password');
+    }
+    this.setCurrentUser(email);
+    return { email };
+  }
+
+  logout() {
+    localStorage.removeItem(this.CURRENT_USER_KEY);
+  }
+
+  getCurrentUser() {
+    return localStorage.getItem(this.CURRENT_USER_KEY);
+  }
+
+  setCurrentUser(email) {
+    localStorage.setItem(this.CURRENT_USER_KEY, email);
+  }
+
+  isAuthenticated() {
+    return !!this.getCurrentUser();
+  }
+}
+
+class LocalStorageNotes {
+  constructor(auth) {
+    this.auth = auth;
+    this.NOTES_PREFIX = 'notepad_demo_notes_';
+  }
+
+  getNotesKey() {
+    const user = this.auth.getCurrentUser();
+    if (!user) throw new Error('Not authenticated');
+    return this.NOTES_PREFIX + user;
+  }
+
+  getAllNotes() {
+    const key = this.getNotesKey();
+    return JSON.parse(localStorage.getItem(key) || '[]');
+  }
+
+  saveAllNotes(notes) {
+    const key = this.getNotesKey();
+    localStorage.setItem(key, JSON.stringify(notes));
+  }
+
+  createNote() {
+    const notes = this.getAllNotes();
+    const newNote = {
+      id: Date.now().toString(),
+      content: '',
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    notes.unshift(newNote);
+    this.saveAllNotes(notes);
+    return newNote;
+  }
+
+  updateNote(id, content) {
+    const notes = this.getAllNotes();
+    const index = notes.findIndex(n => n.id === id);
+    if (index === -1) throw new Error('Note not found');
+    notes[index].content = content;
+    notes[index].updatedAt = Date.now();
+    this.saveAllNotes(notes);
+    return notes[index];
+  }
+
+  deleteNote(id) {
+    let notes = this.getAllNotes();
+    notes = notes.filter(n => n.id !== id);
+    this.saveAllNotes(notes);
+  }
+
+  getNote(id) {
+    const notes = this.getAllNotes();
+    return notes.find(n => n.id === id);
+  }
+}
+
+class NotepadApp {
+  constructor() {
+    this.auth = new LocalStorageAuth();
+    this.notes = new LocalStorageNotes(this.auth);
+    this.currentNoteId = null;
+    this.autoSaveTimeout = null;
+    this.isRegisterMode = false;
+    
+    this.initTheme();
+    this.bindEvents();
+    this.checkAuth();
+  }
+
+  initTheme() {
+    const theme = localStorage.getItem('notepad_theme') || 'light';
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    this.updateThemeButtons();
+  }
+
+  toggleTheme() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('notepad_theme', isDark ? 'dark' : 'light');
+    this.updateThemeButtons();
+  }
+
+  updateThemeButtons() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const icon = isDark ? 'fa-sun' : 'fa-moon';
+    const text = isDark ? 'Light Mode' : 'Dark Mode';
+    
+    document.getElementById('themeIconAuth').className = `fa-solid ${icon}`;
+    document.getElementById('themeTextAuth').textContent = text;
+    document.getElementById('themeIconDash').className = `fa-solid ${icon}`;
+  }
+
+  bindEvents() {
+    // Auth events
+    document.getElementById('authForm').addEventListener('submit', (e) => this.handleAuth(e));
+    document.getElementById('toggleAuthBtn').addEventListener('click', () => this.toggleAuthMode());
+    document.getElementById('togglePassword').addEventListener('click', () => this.togglePasswordVisibility());
+    
+    // Dashboard events
+    document.getElementById('logoutBtn').addEventListener('click', () => this.handleLogout());
+    document.getElementById('newNoteBtn').addEventListener('click', () => this.createNewNote());
+    document.getElementById('deleteNoteBtn').addEventListener('click', () => this.showDeleteModal());
+    document.getElementById('searchNotes').addEventListener('input', (e) => this.filterNotes(e.target.value));
+    document.getElementById('noteContent').addEventListener('input', () => this.handleNoteChange());
+    
+    // Theme toggles
+    document.getElementById('themeToggleAuth').addEventListener('click', () => this.toggleTheme());
+    document.getElementById('themeToggleDash').addEventListener('click', () => this.toggleTheme());
+    
+    // Modal events
+    document.getElementById('cancelDeleteBtn').addEventListener('click', () => this.hideDeleteModal());
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => this.confirmDelete());
+    document.getElementById('deleteModal').addEventListener('click', (e) => {
+      if (e.target.id === 'deleteModal') this.hideDeleteModal();
+    });
+  }
+
+  checkAuth() {
+    if (this.auth.isAuthenticated()) {
+      this.showDashboard();
+    } else {
+      this.showAuth();
+    }
+  }
+
+  showAuth() {
+    document.getElementById('authView').classList.remove('hidden');
+    document.getElementById('dashboardView').classList.add('hidden');
+    this.hideError();
+  }
+
+  showDashboard() {
+    document.getElementById('authView').classList.add('hidden');
+    document.getElementById('dashboardView').classList.remove('hidden');
+    document.getElementById('userEmail').textContent = this.auth.getCurrentUser();
+    this.loadNotes();
+  }
+
+  toggleAuthMode() {
+    this.isRegisterMode = !this.isRegisterMode;
+    const btn = document.getElementById('authSubmitBtn');
+    const toggleBtn = document.getElementById('toggleAuthBtn');
+    const subtitle = document.getElementById('authSubtitle');
+    
+    if (this.isRegisterMode) {
+      btn.textContent = 'Sign Up';
+      toggleBtn.textContent = 'Already have an account? Sign in';
+      subtitle.textContent = 'Create your account to get started';
+    } else {
+      btn.textContent = 'Sign In';
+      toggleBtn.textContent = "Don't have an account? Sign up";
+      subtitle.textContent = 'Sign in to access your notes';
+    }
+    this.hideError();
+  }
+
+  togglePasswordVisibility() {
+    const input = document.getElementById('password');
+    const icon = document.querySelector('#togglePassword i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'fa-solid fa-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'fa-solid fa-eye';
+    }
+  }
+
+  showError(message) {
+    document.getElementById('errorText').textContent = message;
+    document.getElementById('errorMsg').classList.remove('hidden');
+  }
+
+  hideError() {
+    document.getElementById('errorMsg').classList.add('hidden');
+  }
+
+  handleAuth(e) {
+    e.preventDefault();
+    this.hideError();
+    
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    
+    try {
+      if (this.isRegisterMode) {
+        this.auth.register(email, password);
+      } else {
+        this.auth.login(email, password);
+      }
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+      this.showDashboard();
+    } catch (error) {
+      this.showError(error.message);
+    }
+  }
+
+  handleLogout() {
+    this.auth.logout();
+    this.currentNoteId = null;
+    this.showAuth();
+  }
+
+  loadNotes() {
+    const notes = this.notes.getAllNotes();
+    this.renderNotesList(notes);
+    
+    if (notes.length === 0) {
+      document.getElementById('emptyNotesList').classList.remove('hidden');
+      document.getElementById('notesList').classList.add('hidden');
+    } else {
+      document.getElementById('emptyNotesList').classList.add('hidden');
+      document.getElementById('notesList').classList.remove('hidden');
+    }
+  }
+
+  renderNotesList(notes) {
+    const container = document.getElementById('notesList');
+    container.innerHTML = notes.map(note => this.createNoteItem(note)).join('');
+    
+    // Bind click events
+    container.querySelectorAll('.note-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        if (!e.target.closest('.delete-btn')) {
+          this.selectNote(item.dataset.id);
+        }
+      });
+    });
+    
+    container.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.currentNoteId = btn.dataset.id;
+        this.showDeleteModal();
+      });
+    });
+  }
+
+  createNoteItem(note) {
+    const title = note.content.split('\n')[0].trim() || 'Untitled Note';
+    const preview = note.content.split('\n')[1]?.trim().substring(0, 60) || '';
+    const isActive = note.id === this.currentNoteId;
+    
+    return `
+      <div 
+        class="note-item group relative p-3 rounded-lg cursor-pointer transition-all ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-500' : 'hover:bg-slate-50 dark:hover:bg-slate-700/50'}" 
+        data-id="${note.id}"
+      >
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold text-sm truncate mb-1">${this.escapeHtml(title)}</h3>
+            ${preview ? `<p class="text-xs text-slate-500 dark:text-slate-400 truncate">${this.escapeHtml(preview)}</p>` : ''}
+            <p class="text-xs text-slate-400 dark:text-slate-500 mt-2">
+              <i class="fa-solid fa-clock text-xs mr-1"></i>${this.formatDate(note.updatedAt)}
+            </p>
+          </div>
+          <button 
+            class="delete-btn opacity-0 group-hover:opacity-100 p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-all flex-shrink-0" 
+            data-id="${note.id}"
+          >
+            <i class="fa-solid fa-trash text-sm"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  filterNotes(query) {
+    const notes = this.notes.getAllNotes();
+    const filtered = query.trim() 
+      ? notes.filter(n => n.content.toLowerCase().includes(query.toLowerCase()))
+      : notes;
+    this.renderNotesList(filtered);
+  }
+
+  createNewNote() {
+    const note = this.notes.createNote();
+    this.loadNotes();
+    this.selectNote(note.id);
+    setTimeout(() => document.getElementById('noteContent').focus(), 100);
+  }
+
+  selectNote(id) {
+    this.currentNoteId = id;
+    const note = this.notes.getNote(id);
+    if (!note) return;
+    
+    document.getElementById('emptyEditor').classList.add('hidden');
+    document.getElementById('noteEditor').classList.remove('hidden');
+    document.getElementById('noteContent').value = note.content;
+    document.getElementById('lastEdited').textContent = this.formatDate(note.updatedAt);
+    
+    // Update active state in list
+    document.querySelectorAll('.note-item').forEach(item => {
+      if (item.dataset.id === id) {
+        item.classList.add('bg-indigo-50', 'dark:bg-indigo-900/30', 'border-l-4', 'border-indigo-500');
+        item.classList.remove('hover:bg-slate-50', 'dark:hover:bg-slate-700/50');
+      } else {
+        item.classList.remove('bg-indigo-50', 'dark:bg-indigo-900/30', 'border-l-4', 'border-indigo-500');
+        item.classList.add('hover:bg-slate-50', 'dark:hover:bg-slate-700/50');
+      }
+    });
+  }
+
+  handleNoteChange() {
+    if (!this.currentNoteId) return;
+    
+    clearTimeout(this.autoSaveTimeout);
+    document.getElementById('saveStatus').classList.add('hidden');
+    
+    this.autoSaveTimeout = setTimeout(() => {
+      const content = document.getElementById('noteContent').value;
+      this.notes.updateNote(this.currentNoteId, content);
+      this.loadNotes();
+      document.getElementById('lastEdited').textContent = this.formatDate(Date.now());
+      
+      const status = document.getElementById('saveStatus');
+      status.classList.remove('hidden');
+      setTimeout(() => status.classList.add('hidden'), 2000);
+    }, 500);
+  }
+
+  showDeleteModal() {
+    if (!this.currentNoteId) return;
+    document.getElementById('deleteModal').classList.remove('hidden');
+  }
+
+  hideDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+  }
+
+  confirmDelete() {
+    if (!this.currentNoteId) return;
+    
+    this.notes.deleteNote(this.currentNoteId);
+    this.currentNoteId = null;
+    this.hideDeleteModal();
+    this.loadNotes();
+    
+    document.getElementById('noteEditor').classList.add('hidden');
+    document.getElementById('emptyEditor').classList.remove('hidden');
+  }
+
+  formatDate(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (seconds < 60) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return new Date(timestamp).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      year: new Date(timestamp).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+    });
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+}
+
+// Initialize app
+document.addEventListener('DOMContentLoaded', () => {
+  new NotepadApp();
+});
+</script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+</body>
+</html>
